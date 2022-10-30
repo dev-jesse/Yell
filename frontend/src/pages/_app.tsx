@@ -3,6 +3,7 @@ import { ChakraProvider } from '@chakra-ui/react';
 import { Session } from 'next-auth';
 import { SessionProvider } from 'next-auth/react'
 import type { AppProps } from 'next/app'
+import { Toaster } from 'react-hot-toast'
 import { theme } from '../chakra/theme';
 import { client } from '../graphql/apollo-client';
 
@@ -12,6 +13,7 @@ function MyApp({ Component, pageProps, }: AppProps<{ session: Session; }>) {
       <SessionProvider session={pageProps.session}>
         <ChakraProvider theme={theme}>
           <Component {...pageProps} />
+          <Toaster />
         </ChakraProvider>
       </SessionProvider>
     </ApolloProvider>

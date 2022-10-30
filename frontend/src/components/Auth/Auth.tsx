@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { useMutation } from '@apollo/client';
 import UserOperations from '../../graphql/operations/user'
 import { CreateUsernameData, CreateUsernameVariables } from '../../util/types';
+import { toast } from 'react-hot-toast';
 
 interface IAuthProps {
     session: Session | null
@@ -36,12 +37,15 @@ const Auth: React.FunctionComponent<IAuthProps> = ({
                     createUsername: { error }
                 } = data
 
-                throw new Error()  // throw new Error(error)?
+                throw new Error(error as any) // throw new Error(error)?
             }
+
+            toast.success('Username successfully created! 🧨')
 
             reloadSession()
 
-        } catch (error) {
+        } catch (error: any) {
+            toast.error(error?.message)
             console.log("onSubmit error", error)
         }
     }
