@@ -17,17 +17,30 @@ const Auth: React.FunctionComponent<IAuthProps> = ({
 }) => {
     const [username, setUsername] = useState('')
 
-    const [createUsername, { data, loading, error }] = useMutation<
+    const [createUsername, { loading, error }] = useMutation<
         CreateUsernameData,
         CreateUsernameVariables
     >(UserOperations.Mutations.createUsername)
 
-    console.log("HERE IS DATA", data, loading, error)
-
     const onSubmit = async () => {
         if (!username) return
         try {
-            await createUsername({ variables: { username } })
+            const { data } = await createUsername({ variables: { username } })
+
+            if (!data?.createUsername) {
+                throw new Error();
+            }
+
+            if (data.createUsername.error) {
+                const {
+                    createUsername: { error }
+                } = data
+
+                throw new Error()  // throw new Error(error)?
+            }
+
+            reloadSession()
+
         } catch (error) {
             console.log("onSubmit error", error)
         }
