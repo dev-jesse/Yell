@@ -9,6 +9,7 @@ import * as dotenv from 'dotenv'
 import { getSession } from 'next-auth/react';
 import { GraphQLContext } from './util/types';
 import { PrismaClient } from '@prisma/client';
+import { Session } from '../src/util/types'
 
 async function main() {
     dotenv.config()
@@ -35,7 +36,7 @@ async function main() {
         csrfPrevention: true,
         cache: 'bounded',
         context: async ({ req, res }): Promise<GraphQLContext> => {
-            const session = getSession({ req })
+            const session = await getSession({ req }) as Session
             return { session, prisma }
         },
         plugins: [ApolloServerPluginDrainHttpServer({ httpServer }), ApolloServerPluginLandingPageLocalDefault({ embed: true })],
