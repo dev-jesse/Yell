@@ -12,8 +12,14 @@ import {
 } from '@chakra-ui/react'
 import { useState } from 'react'
 import UserOperations from '../../../../graphql/operations/user'
-import { SearchUsersData, SearchUsersInput } from '../../../../util/types'
+import {
+  SearchUsersData,
+  SearchUsersInput,
+  SearchedUser,
+} from '../../../../util/types'
 import UserSearchList from './UserSearchList'
+import Participants from './Participants'
+import { toast } from 'react-hot-toast'
 
 interface ModalProps {
   isOpen: boolean
@@ -22,14 +28,34 @@ interface ModalProps {
 
 const ConversationModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
   const [username, setUsername] = useState('')
+  const [participants, setParticipants] = useState<Array<SearchedUser>>([])
   const [searchUsers, { data, error, loading }] = useLazyQuery<
     SearchUsersData,
     SearchUsersInput
   >(UserOperations.Queries.searchUsers)
 
+  const onCreateConversation = async () => {
+    try {
+    } catch (error: any) {
+      console.log('onCreateConversation error', error)
+      toast.error(error?.message)
+    }
+  }
+
   const onSearch = (event: React.FormEvent) => {
     event.preventDefault()
     searchUsers({ variables: { username } })
+  }
+
+  const addParticipant = (user: SearchedUser) => {
+    if (!participants.map((participant) => participant.id).includes(user.id)) {
+      setParticipants((prev) => [...prev, user])
+    }
+    setUsername('')
+  }
+
+  const removeParticipant = (userId: string) => {
+    setParticipants((prev) => prev.filter((p) => p.id !== userId))
   }
 
   return (
@@ -52,7 +78,29 @@ const ConversationModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
                 </Button>
               </Stack>
             </form>
-            {data?.searchUsers && <UserSearchList users={data.searchUsers} />}
+            {data?.searchUsers && (
+              <UserSearchList
+                users={data.searchUsers}
+                addParticipant={addParticipant}
+              />
+            )}
+            {participants.length !== 0 && (
+              <>
+                <Participants
+                  participants={participants}
+                  removeParticipant={removeParticipant}
+                />
+                <Button
+                  bg='brand.100'
+                  width='100%'
+                  mt={6}
+                  _hover={{ bg: 'brand.100' }}
+                  onClick={() => {}}
+                >
+                  Create Conversation
+                </Button>
+              </>
+            )}
           </ModalBody>
         </ModalContent>
       </Modal>
